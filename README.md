@@ -1,6 +1,6 @@
 ## Navari Hotel Addon
 
-Specific Funtionality for Hotel
+Specific Functionality for Hotel
 
 #### License
 
