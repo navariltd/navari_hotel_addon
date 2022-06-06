@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include navari_hotel_addon *.css
+recursive-include navari_hotel_addon *.csv
+recursive-include navari_hotel_addon *.html
+recursive-include navari_hotel_addon *.ico
+recursive-include navari_hotel_addon *.js
+recursive-include navari_hotel_addon *.json
+recursive-include navari_hotel_addon *.md
+recursive-include navari_hotel_addon *.png
+recursive-include navari_hotel_addon *.py
+recursive-include navari_hotel_addon *.svg
+recursive-include navari_hotel_addon *.txt
+recursive-exclude navari_hotel_addon *.pyc
