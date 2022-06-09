@@ -60,12 +60,7 @@ class HotelIssueSummary(object):
 					"width": 200,
 				}
 			)
-
-		elif self.filters.based_on == "Assigned To":
-			self.columns.append(
-				{"label": _("User"), "fieldname": "user", "fieldtype": "Link", "options": "User", "width": 200}
-			)
-
+			
 		elif self.filters.based_on == "Issue Type":
 			self.columns.append(
 				{
@@ -86,6 +81,11 @@ class HotelIssueSummary(object):
 					"options": "Issue Priority",
 					"width": 200,
 				}
+			)
+		
+		elif self.filters.based_on == "Assigned To":
+			self.columns.append(
+				{"label": _("User"), "fieldname": "user", "fieldtype": "Link", "options": "User", "width": 200}
 			)
 
 		self.statuses = ["Open", "Replied", "On Hold", "Resolved", "Closed"]

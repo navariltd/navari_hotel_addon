@@ -31,7 +31,40 @@ class HotelIssueAnalytics(object):
 	def get_columns(self):
 		self.columns = []
 
-		if self.filters.based_on == "Issue Type":
+		if self.filters.based_on == "Asset":
+			self.columns.append(
+				{
+					"label": _("Asset"),
+					"options": "Asset",
+					"fieldname": "asset",
+					"fieldtype": "Link",
+					"width": 200,
+				}
+			)
+		
+		elif self.filters.based_on == "Location":
+			self.columns.append(
+				{
+					"label": _("Location"),
+					"options": "Location",
+					"fieldname": "location",
+					"fieldtype": "Link",
+					"width": 200,
+				}
+			)
+			
+		elif self.filters.based_on == "Department":
+			self.columns.append(
+				{
+					"label": _("Department"),
+					"options": "Department",
+					"fieldname": "department",
+					"fieldtype": "Link",
+					"width": 200,
+				}
+			)
+
+		elif self.filters.based_on == "Issue Type":
 			self.columns.append(
 				{
 					"label": _("Issue Type"),
@@ -41,6 +74,7 @@ class HotelIssueAnalytics(object):
 					"width": 200,
 				}
 			)
+		
 
 		elif self.filters.based_on == "Issue Priority":
 			self.columns.append(
@@ -127,6 +161,9 @@ class HotelIssueAnalytics(object):
 	def get_issues(self):
 		filters = self.get_common_filters()
 		self.field_map = {
+			"Asset": "asset",
+			"Location": "location",
+			"Department": "department",
 			"Issue Type": "issue_type",
 			"Issue Priority": "priority",
 			"Assigned To": "_assign",
@@ -145,7 +182,7 @@ class HotelIssueAnalytics(object):
 		if self.filters.get("assigned_to"):
 			filters["_assign"] = ("like", "%" + self.filters.get("assigned_to") + "%")
 
-		for entry in ["company", "status", "priority", "customer", "project"]:
+		for entry in ["company", "status", "priority", "asset", "location", "department"]:
 			if self.filters.get(entry):
 				filters[entry] = self.filters.get(entry)
 
@@ -156,7 +193,13 @@ class HotelIssueAnalytics(object):
 		self.get_periodic_data()
 
 		for entity, period_data in iteritems(self.issue_periodic_data):
-			if self.filters.based_on == "Assigned To":
+			if self.filters.based_on == "Asset":
+				row = {"asset": entity}
+			elif self.filters.based_on == "Location":
+				row = {"location": entity}
+			elif self.filters.based_on == "Department":
+				row = {"department": entity}
+			elif self.filters.based_on == "Assigned To":
 				row = {"user": entity}
 			elif self.filters.based_on == "Issue Type":
 				row = {"issue_type": entity}
