@@ -16,8 +16,8 @@ frappe.query_reports["Hotel Issue Summary"] = {
 			fieldname: "based_on",
 			label: __("Based On"),
 			fieldtype: "Select",
-			options: ["Issue Type", "Issue Priority", "Assigned To"],
-			default: "Issue Type",
+			options: ["Asset", "Location", "Department", "Issue Type", "Issue Priority", "Assigned To"],
+			default: "Department",
 			reqd: 1
 		},
 		{
@@ -52,6 +52,24 @@ frappe.query_reports["Hotel Issue Summary"] = {
 			label: __("Issue Priority"),
 			fieldtype: "Link",
 			options: "Issue Priority"
+		},
+		{
+			fieldname: "asset",
+			label: __("Asset"),
+			fieldtype: "Link",
+			options: "Asset"
+		},
+		{
+			fieldname: "location",
+			label: __("Location"),
+			fieldtype: "Link",
+			options: "Location"
+		},
+		{
+			fieldname: "department",
+			label: __("Department"),
+			fieldtype: "Link",
+			options: "Department"
 		},
 		{
 			fieldname: "assigned_to",
