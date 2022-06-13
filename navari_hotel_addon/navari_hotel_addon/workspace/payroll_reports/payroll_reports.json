@@ -1,0 +1,99 @@
+{
+ "category": "Modules",
+ "charts": [],
+ "creation": "2022-06-13 10:40:39.118648",
+ "developer_mode_only": 0,
+ "disable_user_customization": 0,
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "extends": "Payroll",
+ "extends_another_page": 1,
+ "hide_custom": 0,
+ "idx": 0,
+ "is_default": 0,
+ "is_standard": 1,
+ "label": "Payroll Reports",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Kenya Custom Reports",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "Salary Slip",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "NHIF Report",
+   "link_to": "Kenya NHIF Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "only_for": "",
+   "type": "Link"
+  },
+  {
+   "dependencies": "Salary Slip",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "NSSF Report",
+   "link_to": "Kenya NSSF Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "only_for": "",
+   "type": "Link"
+  },
+  {
+   "dependencies": "Salary Slip",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "HELB Report",
+   "link_to": "Kenya HELB Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "Salary Slip",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Payroll Register Report",
+   "link_to": "Kenya Payroll Register Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "only_for": "",
+   "type": "Link"
+  },
+  {
+   "dependencies": "Salary Slip",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Bank Payroll Advice Report",
+   "link_to": "Kenya Bank Payroll Advice Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "only_for": "",
+   "type": "Link"
+  },
+  {
+   "dependencies": "Salary Slip",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "P9A Tax Deduction Card Report",
+   "link_to": "Kenya P9A Tax Deduction Card Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "only_for": "",
+   "type": "Link"
+  }
+ ],
+ "modified": "2022-06-13 10:40:39.118648",
+ "modified_by": "Administrator",
+ "module": "Navari Hotel Addon",
+ "name": "Payroll Reports",
+ "owner": "Administrator",
+ "pin_to_bottom": 0,
+ "pin_to_top": 0,
+ "shortcuts": []
+}
