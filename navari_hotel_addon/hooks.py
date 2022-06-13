@@ -7,7 +7,28 @@ app_description = "Specific Funtionality for Hotel"
 app_icon = "octicon octicon-file-directory"
 app_color = "grey"
 app_email = "info@navari.co.ke"
-app_license = "GeNU General Public License (v3)"
+app_license = "GNU General Public License (v3)"
+
+
+fixtures = [
+    {
+        "doctype": "Custom Field",
+        "filters": [
+            [
+                "name",
+                "in",
+                (
+                   	"Employee-national_id",
+					"Employee-nhif_no",
+					"Employee-nssf_no",
+					"Employee-tax_id",
+                    "Salary Component-p9a_tax_deduction_card_type",								
+                ),
+            ]
+        ],
+    },
+]
+
 
 # Includes in <head>
 # ------------------
