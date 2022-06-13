@@ -2,6 +2,24 @@
 
 Specific Functionality for Hotel
 
+### Navari Hotel Addon & Payroll Reports
+
+• Hotel Issue Summary
+
+• Hotel Issue Analytics
+
+• P9A Tax Deduction Card
+
+• NSSF Report
+
+• NHIF Report
+
+• HELB Report
+
+• Bank Payroll Advice Report
+
+• Payroll Register Report
+
 ### Installation
 
 Using bench, [install ERPNext](https://github.com/frappe/bench#installation) as mentioned here.
