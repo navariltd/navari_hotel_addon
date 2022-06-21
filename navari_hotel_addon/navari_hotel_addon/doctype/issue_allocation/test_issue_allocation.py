@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestSetting(unittest.TestCase):
+class TestIssueAllocation(unittest.TestCase):
 	pass

@@ -1,0 +1,156 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2022-05-31 21:02:39.539343",
+ "doctype": "DocType",
+ "document_type": "Setup",
+ "engine": "InnoDB",
+ "field_order": [
+  "subject_section",
+  "naming_series",
+  "location",
+  "raised_by",
+  "cb00",
+  "opening_date",
+  "resolution_date",
+  "items_section",
+  "items",
+  "more_info_section",
+  "company",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "subject_section",
+   "fieldtype": "Section Break",
+   "options": "fa fa-flag"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "no_copy": 1,
+   "options": "ISS-ALLC-.YYYY.-",
+   "print_hide": 1,
+   "set_only_once": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Location",
+   "options": "Location",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "default": "__user",
+   "fieldname": "raised_by",
+   "fieldtype": "Link",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Raised By",
+   "oldfieldname": "raised_by",
+   "oldfieldtype": "Data",
+   "options": "User"
+  },
+  {
+   "fieldname": "cb00",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "opening_date",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Date",
+   "no_copy": 1,
+   "oldfieldname": "opening_date",
+   "oldfieldtype": "Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "resolution_date",
+   "fieldtype": "Datetime",
+   "label": "Expected Resolution Date",
+   "oldfieldname": "resolution_date",
+   "oldfieldtype": "Date"
+  },
+  {
+   "fieldname": "items_section",
+   "fieldtype": "Section Break",
+   "label": "Items"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Issue Allocation Item",
+   "reqd": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "more_info_section",
+   "fieldtype": "Section Break",
+   "label": "More Info"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "print_hide": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Issue Allocation",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "icon": "fa fa-ticket",
+ "is_submittable": 1,
+ "links": [
+  {
+   "custom": 1,
+   "group": "Issues",
+   "link_doctype": "Issue",
+   "link_fieldname": "issue_allocation"
+  }
+ ],
+ "modified": "2022-06-21 12:39:02.736253",
+ "modified_by": "Administrator",
+ "module": "Navari Hotel Addon",
+ "name": "Issue Allocation",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Support Team",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "search_fields": "location,raised_by",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "subject_field": "subject",
+ "timeline_field": "location",
+ "track_changes": 1,
+ "track_seen": 1
+}
