@@ -8,6 +8,8 @@ Specific Functionality for Hotel
 
 • Hotel Issue Analytics
 
+Extensions on Taxes and Totals templates
+
 ### Installation
 
 Using bench, [install ERPNext](https://github.com/frappe/bench#installation) as mentioned here.
