@@ -26,6 +26,9 @@ fixtures = [
 					"Issue-asset",
 					"Issue-asset_name",
 					"Issue-issue_allocation",
+					"Sales Taxes and Charges-hidden",
+                    "Sales Order-hide_total_without_tax",
+                    "Quotation-hide_total_without_tax",	
 
                 ),
             ]
