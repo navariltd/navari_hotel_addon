@@ -22,7 +22,16 @@ fixtures = [
 					"Employee-nhif_no",
 					"Employee-nssf_no",
 					"Employee-tax_id",
-                    "Salary Component-p9a_tax_deduction_card_type",								
+                    "Salary Component-p9a_tax_deduction_card_type",
+					"Issue-location",
+					"Issue-department",
+					"Issue-hod",
+					"Issue-hod_user_id",
+					"Issue-mobile_no",
+					"Issue-asset",
+					"Issue-asset_name",
+					"Issue-issue_allocation",
+
                 ),
             ]
         ],
