@@ -18,11 +18,6 @@ fixtures = [
                 "name",
                 "in",
                 (
-                   	"Employee-national_id",
-					"Employee-nhif_no",
-					"Employee-nssf_no",
-					"Employee-tax_id",
-                    "Salary Component-p9a_tax_deduction_card_type",
 					"Issue-location",
 					"Issue-department",
 					"Issue-hod",
