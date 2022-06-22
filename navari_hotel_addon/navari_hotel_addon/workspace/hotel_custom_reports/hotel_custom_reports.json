@@ -1,6 +1,11 @@
 {
  "category": "Modules",
- "charts": [],
+ "charts": [
+  {
+   "chart_name": "Issue Summary",
+   "label": "Issue Summary"
+  }
+ ],
  "creation": "2022-06-07 13:09:57.100031",
  "developer_mode_only": 0,
  "disable_user_customization": 0,
@@ -41,7 +46,7 @@
    "type": "Link"
   }
  ],
- "modified": "2022-06-07 13:31:36.476438",
+ "modified": "2022-06-22 09:39:30.271157",
  "modified_by": "Administrator",
  "module": "Navari Hotel Addon",
  "name": "Hotel Custom Reports",
@@ -49,5 +54,12 @@
  "pin_to_bottom": 0,
  "pin_to_top": 0,
  "restrict_to_domain": "",
- "shortcuts": []
+ "shortcuts": [
+  {
+   "doc_view": "",
+   "label": "Dashboard",
+   "link_to": "Support",
+   "type": "Dashboard"
+  }
+ ]
 }
