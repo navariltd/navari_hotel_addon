@@ -2,8 +2,8 @@
  "category": "Modules",
  "charts": [
   {
-   "chart_name": "Issue Summary",
-   "label": "Issue Summary"
+   "chart_name": "Issues Analytics",
+   "label": "Issues Analytics"
   }
  ],
  "creation": "2022-06-07 13:09:57.100031",
@@ -46,7 +46,7 @@
    "type": "Link"
   }
  ],
- "modified": "2022-06-22 09:39:30.271157",
+ "modified": "2022-06-22 09:42:20.377881",
  "modified_by": "Administrator",
  "module": "Navari Hotel Addon",
  "name": "Hotel Custom Reports",
