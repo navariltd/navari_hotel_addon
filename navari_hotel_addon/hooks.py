@@ -1,4 +1,5 @@
 from . import __version__ as app_version
+from navari_hotel_addon.controllers.taxes_and_totals import calculate_item_values_override
 
 app_name = "navari_hotel_addon"
 app_title = "Navari Hotel Addon"
@@ -43,6 +44,10 @@ fixtures = [
 # include js, css files in header of desk.html
 # app_include_css = "/assets/navari_hotel_addon/css/navari_hotel_addon.css"
 # app_include_js = "/assets/navari_hotel_addon/js/navari_hotel_addon.js"
+app_include_js = [
+	# "/assets/navari_hotel_addon/js/navari_hotel_addon.js",
+	"navari_hotel_addon/public/js/taxes_and_totals.js"
+]
 
 # include js, css files in header of web template
 # web_include_css = "/assets/navari_hotel_addon/css/navari_hotel_addon.css"
@@ -199,6 +204,8 @@ user_data_fields = [
 		"doctype": "{doctype_4}"
 	}
 ]
+
+calculate_item_values_override()
 
 # Authentication and authorization
 # --------------------------------
