@@ -23,7 +23,6 @@ fixtures = [
 					"Issue-department",
 					"Issue-hod",
 					"Issue-hod_user_id",
-					"Issue-mobile_no",
 					"Issue-asset",
 					"Issue-asset_name",
 					"Issue-issue_allocation",
