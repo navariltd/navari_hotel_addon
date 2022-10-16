@@ -1,65 +1,37 @@
 {
- "category": "Modules",
  "charts": [
   {
    "chart_name": "Issues Analytics",
    "label": "Issues Analytics"
   }
  ],
- "creation": "2022-06-07 13:09:57.100031",
- "developer_mode_only": 0,
- "disable_user_customization": 0,
+ "content": "[{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Hotel Custom Reports</span>\",\"col\":12}},{\"type\":\"chart\",\"data\":{\"chart_name\":\"Issues Analytics\",\"col\":12}},{\"type\":\"spacer\",\"data\":{\"col\":12}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":3}},{\"type\":\"spacer\",\"data\":{\"col\":12}}]",
+ "creation": "2022-10-15 15:30:24.165808",
  "docstatus": 0,
  "doctype": "Workspace",
- "extends": "Support",
- "extends_another_page": 1,
+ "for_user": "",
  "hide_custom": 0,
  "idx": 0,
- "is_default": 0,
- "is_standard": 1,
  "label": "Hotel Custom Reports",
- "links": [
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Custom Reports",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 1,
-   "label": "Hotel Issue Summary",
-   "link_to": "Hotel Issue Summary",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 1,
-   "label": "Hotel Issue Analytics",
-   "link_to": "Hotel Issue Analytics",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  }
- ],
- "modified": "2022-06-22 09:42:20.377881",
+ "links": [],
+ "modified": "2022-10-15 20:21:14.924838",
  "modified_by": "Administrator",
  "module": "Navari Hotel Addon",
  "name": "Hotel Custom Reports",
  "owner": "Administrator",
- "pin_to_bottom": 0,
- "pin_to_top": 0,
- "restrict_to_domain": "",
+ "parent_page": "Support",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 39.0,
  "shortcuts": [
   {
-   "doc_view": "",
+   "color": "Grey",
+   "doc_view": "List",
    "label": "Dashboard",
    "link_to": "Support",
    "type": "Dashboard"
   }
- ]
+ ],
+ "title": "Hotel Custom Reports"
 }
