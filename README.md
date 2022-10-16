@@ -1,14 +1,12 @@
-## Navari Hotel Addon
+## Navari ERPNext Extensions for Hospitality Industry
 
-Specific Functionality for Hotel
-
-### Navari Hotel Addon Reports
+### Includes:
 
 • Hotel Issue Summary
 
 • Hotel Issue Analytics
 
-Extensions on Taxes and Totals templates
+• Extensions on Taxes and Totals templates
 
 ### Installation
 
