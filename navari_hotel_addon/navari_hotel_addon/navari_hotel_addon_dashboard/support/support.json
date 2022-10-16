@@ -1,22 +1,22 @@
 {
  "cards": [
   {
-   "card": "Total Issues"
+   "card": "Hotel Total Issues"
   },
   {
-   "card": "Total Issue Types"
+   "card": "Hotel Total Issue Types"
   },
   {
-   "card": "Total Issue Allocation"
+   "card": "Hotel Total Issue Allocation"
   }
  ],
  "charts": [
   {
-   "chart": "Issue Summary",
+   "chart": "Hotel Issue Summary Chart",
    "width": "Full"
   },
   {
-   "chart": "Issues Analytics",
+   "chart": "Hotel Issue Analytics Chart",
    "width": "Full"
   }
  ],

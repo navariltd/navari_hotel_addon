@@ -1,6 +1,6 @@
 {
  "based_on": "",
- "chart_name": "Issue Summary",
+ "chart_name": "Hotel Issue Summary Chart",
  "chart_type": "Report",
  "creation": "2022-06-07 16:01:10.144992",
  "custom_options": "{\"type\": \"line\", \"axisOptions\": {\"shortenYAxisNumbers\": 1}, \"tooltipOptions\": {}, \"lineOptions\": {\"regionFill\": 1}}",
@@ -16,7 +16,7 @@
  "modified": "2022-06-09 10:46:20.955513",
  "modified_by": "Administrator",
  "module": "Navari Hotel Addon",
- "name": "Issue Summary",
+ "name": "Hotel Issue Summary Chart",
  "number_of_groups": 0,
  "owner": "Administrator",
  "parent_document_type": "",
