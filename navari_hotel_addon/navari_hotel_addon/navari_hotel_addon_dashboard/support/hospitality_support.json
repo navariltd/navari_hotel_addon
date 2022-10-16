@@ -1,15 +1,4 @@
 {
- "cards": [
-  {
-   "card": "Hotel Total Issues"
-  },
-  {
-   "card": "Hotel Total Issue Types"
-  },
-  {
-   "card": "Hotel Total Issue Allocation"
-  }
- ],
  "charts": [
   {
    "chart": "Hotel Issue Summary Chart",
@@ -21,7 +10,7 @@
   }
  ],
  "creation": "2022-06-07 15:18:32.792564",
- "dashboard_name": "Support",
+ "dashboard_name": "Hospitality Support",
  "docstatus": 0,
  "doctype": "Dashboard",
  "idx": 0,
@@ -30,6 +19,6 @@
  "modified": "2022-06-07 16:02:32.298287",
  "modified_by": "Administrator",
  "module": "Navari Hotel Addon",
- "name": "Support",
+ "name": "Hospitality Support",
  "owner": "Administrator"
 }
