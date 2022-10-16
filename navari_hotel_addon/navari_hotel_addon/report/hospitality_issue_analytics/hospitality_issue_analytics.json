@@ -1,7 +1,7 @@
 {
- "add_total_row": 0,
+ "add_total_row": 1,
  "columns": [],
- "creation": "2022-06-07 13:12:20.836832",
+ "creation": "2022-06-07 13:12:57.665207",
  "disable_prepared_report": 0,
  "disabled": 0,
  "docstatus": 0,
@@ -10,14 +10,14 @@
  "idx": 0,
  "is_standard": "Yes",
  "letter_head": "Standard",
- "modified": "2022-06-07 13:16:31.814348",
+ "modified": "2022-06-07 13:16:14.191029",
  "modified_by": "Administrator",
  "module": "Navari Hotel Addon",
- "name": "Hotel Issue Summary",
+ "name": "Hospitality Issue Analytics",
  "owner": "Administrator",
  "prepared_report": 0,
  "ref_doctype": "Issue",
- "report_name": "Hotel Issue Summary",
+ "report_name": "Hospitality Issue Analytics",
  "report_type": "Script Report",
  "roles": [
   {

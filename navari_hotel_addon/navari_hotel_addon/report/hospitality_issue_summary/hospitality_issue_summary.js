@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 /* eslint-disable */
 
-frappe.query_reports["Hotel Issue Summary"] = {
+frappe.query_reports["Hospitality Issue Summary"] = {
 	"filters": [
 		{
 			fieldname: "company",

@@ -12,12 +12,12 @@ from erpnext.accounts.utils import get_fiscal_year
 
 
 def execute(filters=None):
-	return HotelIssueAnalytics(filters).run()
+	return HospitalityIssueAnalytics(filters).run()
 
 
-class HotelIssueAnalytics(object):
+class HospitalityIssueAnalytics(object):
 	def __init__(self, filters=None):
-		"""Hotel Issue Analytics Report"""
+		"""Hospitality Issue Analytics Report"""
 		self.filters = frappe._dict(filters or {})
 		self.get_period_date_ranges()
 
