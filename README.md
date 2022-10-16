@@ -6,7 +6,9 @@
 
 • Hotel Issue Analytics
 
-• Extensions on Taxes and Totals templates
+• Extensions on Taxes and Totals .py and .js
+
+• Extensions on taxes and totals templates
 
 ### Installation
 
