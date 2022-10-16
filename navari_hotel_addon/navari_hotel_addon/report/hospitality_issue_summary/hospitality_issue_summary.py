@@ -10,10 +10,10 @@ from six import iteritems
 
 
 def execute(filters=None):
-	return HotelIssueSummary(filters).run()
+	return HospitalityIssueSummary(filters).run()
 
 
-class HotelIssueSummary(object):
+class HospitalityIssueSummary(object):
 	def __init__(self, filters=None):
 		self.filters = frappe._dict(filters or {})
 
