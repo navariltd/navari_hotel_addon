@@ -18,8 +18,7 @@
   "section_break_10",
   "hod",
   "column_break_12",
-  "hod_user_id",
-  "mobile_no"
+  "hod_user_id"
  ],
  "fields": [
   {
@@ -106,12 +105,6 @@
    "label": "HOD User Id",
    "options": "User",
    "read_only": 1
-  },
-  {
-   "fieldname": "mobile_no",
-   "fieldtype": "Data",
-   "label": "Mobile No",
-   "options": "Phone"
   }
  ],
  "index_web_pages_for_search": 1,
