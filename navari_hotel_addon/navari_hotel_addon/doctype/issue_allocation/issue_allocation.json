@@ -63,6 +63,8 @@
   },
   {
     "bold": 1,
+    "fetch_from": "raised_by.full_name",
+    "fetch_if_empty": 1,
     "fieldname": "raised_by_name",
     "fieldtype": "Data",
     "in_global_search": 1,
@@ -131,7 +133,7 @@
  "is_submittable": 1,
  "links": [
   {
-   "custom": 1,
+   "custom": 0,
    "group": "Issues",
    "link_doctype": "Issue",
    "link_fieldname": "issue_allocation"
