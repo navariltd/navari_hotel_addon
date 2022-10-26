@@ -133,7 +133,7 @@
  "is_submittable": 1,
  "links": [
   {
-   "custom": 0,
+   "custom": 1,
    "group": "Issues",
    "link_doctype": "Issue",
    "link_fieldname": "issue_allocation"
@@ -147,7 +147,7 @@
  "permissions": [
   {
    "create": 1,
-   "delete": 1,
+   "delete": 0,
    "email": 1,
    "print": 1,
    "read": 1,
@@ -164,5 +164,6 @@
  "subject_field": "subject",
  "timeline_field": "location",
  "track_changes": 1,
- "track_seen": 1
+ "track_seen": 1,
+ "custom": 1
 }
