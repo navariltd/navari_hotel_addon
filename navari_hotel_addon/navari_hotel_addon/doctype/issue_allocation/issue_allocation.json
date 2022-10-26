@@ -12,6 +12,7 @@
   "naming_series",
   "location",
   "raised_by",
+  "raised_by_name",
   "cb00",
   "opening_date",
   "resolution_date",
@@ -59,6 +60,15 @@
    "oldfieldname": "raised_by",
    "oldfieldtype": "Data",
    "options": "User"
+  },
+  {
+    "bold": 1,
+    "fieldname": "raised_by_name",
+    "fieldtype": "Data",
+    "in_global_search": 1,
+    "in_list_view": 1,
+    "label": "Raised by Name",
+    "reqd": 1
   },
   {
    "fieldname": "cb00",
@@ -146,7 +156,7 @@
    "write": 1
   }
  ],
- "search_fields": "location,raised_by",
+ "search_fields": "location,raised_by,raised_by_name",
  "sort_field": "modified",
  "sort_order": "DESC",
  "subject_field": "subject",
