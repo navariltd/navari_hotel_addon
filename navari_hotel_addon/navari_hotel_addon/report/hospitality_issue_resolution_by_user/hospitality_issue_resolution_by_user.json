@@ -1,0 +1,28 @@
+{
+ "add_total_row": 0,
+ "columns": [],
+ "creation": "2025-03-17 11:39:14.730415",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": "Standard",
+ "letterhead": null,
+ "modified": "2025-03-17 11:39:14.730415",
+ "modified_by": "Administrator",
+ "module": "Navari Hotel Addon",
+ "name": "Hospitality Issue Resolution by User",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Issue",
+ "report_name": "Hospitality Issue Resolution by User",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "Analytics"
+  }
+ ],
+ "timeout": 0
+}
