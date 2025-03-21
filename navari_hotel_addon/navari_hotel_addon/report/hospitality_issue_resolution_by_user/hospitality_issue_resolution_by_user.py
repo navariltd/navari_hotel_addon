@@ -1,11 +1,10 @@
-# Copyright (c) 2024, Navari Limited and contributors
+# Copyright (c) 2025, Navari Limited and contributors
 # For license information, please see license.txt
 
 import frappe
 import json
-from frappe import _, scrub
-from frappe.utils import flt
-from six import iteritems
+from frappe import _
+
 
 def execute(filters=None):
     return HospitalityIssueResolutionByUser(filters).run()
@@ -13,16 +12,11 @@ def execute(filters=None):
 class HospitalityIssueResolutionByUser:
     def __init__(self, filters=None):
         self.filters = frappe._dict(filters or {})
-        self.base_field = {
-            "Location": "location",
-            "Department": "department",
-            "Issue Type": "issue_type",
-            "Asset": "asset",
-            "Issue Priority": "priority"
-        }.get(self.filters.get("based_on"), "department")  
         self.data = []
         self.columns = []
         self.chart = None
+        self.report_summary = []
+        self.filtered_issues = []
 
     def run(self):
         self.get_columns()
@@ -32,174 +26,154 @@ class HospitalityIssueResolutionByUser:
         return self.columns, self.data, None, self.chart, self.report_summary
 
     def get_columns(self):
-        self.columns = [{
-            "label": _(self.filters.based_on),
-            "fieldname": scrub(self.filters.based_on),
-            "fieldtype": "Link",
-            "options": self.filters.based_on,
-            "width": 200
-        }]
-        self.columns.extend([
-            {"label": _("Total Opened"), "fieldname": "total_opened", "fieldtype": "Data", "width": 120},
-            {"label": _("Open"), "fieldname": "open_count", "fieldtype": "Data", "width": 100},
-        ])
-        self.columns.append({"label": _("Assigned To"), "fieldname": "assigned_to", "fieldtype": "Data", "width": 200})
-        for status in ["Replied", "On Hold", "Resolved", "Closed"]:
-            self.columns.append({"label": _(status), "fieldname": scrub(status), "fieldtype": "Int", "width": 100})
-        self.columns.extend([
-            {"label": _("Resolved + Closed"), "fieldname": "resolved_closed", "fieldtype": "Int", "width": 140},
-            {"label": _("User Total"), "fieldname": "user_total", "fieldtype": "Int", "width": 120},
-        ])
-
-    def get_filtered_issues(self):
-        filters = {
-            "opening_date": ["between", [self.filters.from_date, self.filters.to_date]],
-        }
-        for key in ["company", "status", "location", "department", "issue_type", "asset", "priority"]:
-            if self.filters.get(key):
-                filters[key] = self.filters.get(key)
-        if self.filters.get("assigned_to"):
-            filters["_assign"] = ("like", f"%{self.filters.get('assigned_to')}%")
-        fields = [self.base_field, "_assign", "status"]
-        return frappe.db.get_all("Issue", filters=filters, fields=fields)
-
-    def get_all_base_values(self):
-        if self.base_field == "location":
-            return frappe.get_all("Location", pluck="name")
-        elif self.base_field == "department":
-            return frappe.get_all("Department", pluck="name")
-        elif self.base_field == "issue_type":
-            return frappe.get_all("Issue Type", pluck="name")
-        elif self.base_field == "asset":
-            return frappe.get_all("Asset", pluck="name")
-        elif self.base_field == "priority":
-            return frappe.get_all("Issue Priority", pluck="name")
-        else:
-            return []
+        self.columns = [
+            {"label": _("User"), "fieldname": "user_link", "fieldtype": "Data", "width": 260},
+            {"label": _("Opened"), "fieldname": "opened", "fieldtype": "Int", "width": 100},
+            {"label": _("Assigned"), "fieldname": "assigned", "fieldtype": "Int", "width": 100},
+            {"label": _("Replied"), "fieldname": "replied", "fieldtype": "Int", "width": 100},
+            {"label": _("Put on Hold"), "fieldname": "on_hold", "fieldtype": "Int", "width": 120},
+            {"label": _("Resolved"), "fieldname": "resolved", "fieldtype": "Int", "width": 100},
+            {"label": _("Closed"), "fieldname": "closed", "fieldtype": "Int", "width": 100},
+            {"label": _("Resolved + Closed"), "fieldname": "resolved_closed", "fieldtype": "Int", "width": 180},
+            {"label": _("Total"), "fieldname": "total", "fieldtype": "Int", "width": 100},
+        ]
 
     def get_data(self):
-        issues = self.get_filtered_issues()
-        all_base_values = self.get_all_base_values()
-        summary_map = frappe._dict()
+        issue_filters = self.build_issue_filters()
+        self.filtered_issues = frappe.get_all("Issue", filters=issue_filters, fields=["name", "owner", "_assign"])
+        user_stats = self.initialize_user_stats(self.filtered_issues)
+        self.aggregate_status_changes(user_stats)
+        self.finalize_data(user_stats)
+
+    def build_issue_filters(self):
+        filters = []
+        f = self.filters
+        if f.get("from_date"):
+            filters.append(["Issue", "creation", ">=", f["from_date"]])
+        if f.get("to_date"):
+            filters.append(["Issue", "creation", "<=", f["to_date"]])
+        if f.get("location"):
+            filters.append(["Issue", "location", "=", f["location"]])
+        if f.get("department"):
+            filters.append(["Issue", "department", "=", f["department"]])
+        if f.get("issue_type"):
+            filters.append(["Issue", "issue_type", "=", f["issue_type"]])
+        if f.get("company"):
+            filters.append(["Issue", "company", "=", f["company"]])
+        return filters
+
+    def initialize_user_stats(self, issues):
+        stats = {}
         for issue in issues:
-            base_value = issue.get(self.base_field) or _("Not Specified")
-            summary_map.setdefault(base_value, {
-                "total_opened": 0,
-                "open_count": 0,
-                "replied": 0,
-                "on_hold": 0,
-                "resolved": 0,
-                "closed": 0,
-                "users": frappe._dict()
-            })
-            summary_map[base_value]["total_opened"] += 1
-            if issue.status == "Open":
-                summary_map[base_value]["open_count"] += 1
-            elif issue.status == "Replied":
-                summary_map[base_value]["replied"] += 1
-            elif issue.status == "On Hold":
-                summary_map[base_value]["on_hold"] += 1
-            elif issue.status == "Resolved":
-                summary_map[base_value]["resolved"] += 1
-            elif issue.status == "Closed":
-                summary_map[base_value]["closed"] += 1
+            owner = issue.owner
+            if owner not in stats:
+                stats[owner] = self.init_user_row(owner)
+            stats[owner]["opened"] += 1
+
             if issue._assign:
-                assigned_users = json.loads(issue._assign)
-                if self.filters.get("assigned_to"):
-                    if self.filters.get("assigned_to") in assigned_users:
-                        user_data = summary_map[base_value]["users"].setdefault(self.filters.get("assigned_to"), {
-                            "Replied": 0,
-                            "On Hold": 0,
-                            "Resolved": 0,
-                            "Closed": 0,
-                            "user_total": 0
-                        })
-                        if issue.status in user_data:
-                            user_data[issue.status] += 1
-                        user_data["user_total"] += 1
-                else:
-                    for user in assigned_users:
-                        user_data = summary_map[base_value]["users"].setdefault(user, {
-                            "Replied": 0,
-                            "On Hold": 0,
-                            "Resolved": 0,
-                            "Closed": 0,
-                            "user_total": 0
-                        })
-                        if issue.status in user_data:
-                            user_data[issue.status] += 1
-                        user_data["user_total"] += 1
-        for base_value in all_base_values:
-            base_entry = summary_map.get(base_value, {
-                "total_opened": 0,
-                "open_count": 0,
-                "replied": 0,
-                "on_hold": 0,
-                "resolved": 0,
-                "closed": 0,
-                "users": {}
-            })
-            if base_entry["total_opened"] == 0:
-                continue
-            self.data.append({
-                scrub(self.filters.based_on): base_value,
-                "total_opened": base_entry["total_opened"],
-                "open_count": base_entry["open_count"],
-                "replied": base_entry["replied"],
-                "on_hold": base_entry["on_hold"],
-                "resolved": base_entry["resolved"],
-                "closed": base_entry["closed"],
-                "resolved_closed": base_entry["resolved"] + base_entry["closed"],
-                "assigned_to": "",
-                "user_total": 0
-            })
-            for user, user_data in base_entry["users"].items():
-                user_fullname = frappe.get_value("User", user, "full_name")
-                row = {
-                    scrub(self.filters.based_on): "",
-                    "total_opened": "",
-                    "open_count": "",
-                    "assigned_to": f'<a href="/app/user/{user}">{user_fullname}</a>',
-                    "replied": user_data.get("Replied", 0),
-                    "on_hold": user_data.get("On Hold", 0),
-                    "resolved": user_data.get("Resolved", 0),
-                    "closed": user_data.get("Closed", 0),
-                    "resolved_closed": user_data.get("Resolved", 0) + user_data.get("Closed", 0),
-                    "user_total": user_data.get("user_total", 0)
-                }
-                self.data.append(row)
+                try:
+                    assigned_users = json.loads(issue._assign)
+                    for assigned_user in assigned_users:
+                        if assigned_user not in stats:
+                            stats[assigned_user] = self.init_user_row(assigned_user)
+                        stats[assigned_user]["assigned"] += 1
+                except (json.JSONDecodeError, TypeError):
+                    pass  
+        return stats
+
+    def aggregate_status_changes(self, user_stats):
+        for issue in self.filtered_issues:
+            versions = frappe.db.get_all("Version",
+                filters={"ref_doctype": "Issue", "docname": issue.name},
+                fields=["owner", "data"])
+
+            for version in versions:
+                try:
+                    data_json = json.loads(version.data or "{}")
+                except (json.JSONDecodeError, TypeError):
+                    continue
+
+                changed_fields = data_json.get("changed", [])
+                for field in changed_fields:
+                    if field[0] == "status":
+                        new_status = field[2]
+                        user = version.owner
+                        if user not in user_stats:
+                            user_stats[user] = self.init_user_row(user)
+
+                        if new_status == "Replied":
+                            user_stats[user]["replied"] += 1
+                        elif new_status == "On Hold":
+                            user_stats[user]["on_hold"] += 1
+                        elif new_status == "Resolved":
+                            user_stats[user]["resolved"] += 1
+                        elif new_status == "Closed":
+                            user_stats[user]["closed"] += 1
+
+    def finalize_data(self, user_stats):
+        self.data = []
+        for user, stats in user_stats.items():
+            full_name = frappe.db.get_value("User", user, "full_name") or user
+            stats["user_link"] = f'<a href="/app/user/{user}" target="_blank">{full_name}</a>'
+            stats["resolved_closed"] = stats["resolved"] + stats["closed"]
+            stats["total"] = (
+                stats["opened"] + stats["assigned"] + stats["replied"] +
+                stats["on_hold"] + stats["resolved"] + stats["closed"]
+            )
+            self.data.append(stats)
+
+
+    def init_user_row(self, user):
+        return {
+            "user": user,
+            "opened": 0,
+            "assigned": 0,
+            "replied": 0,
+            "on_hold": 0,
+            "resolved": 0,
+            "closed": 0,
+            "resolved_closed": 0,
+            "total": 0,
+        }
 
     def get_chart_data(self):
+        if not self.data:
+            self.chart = None
+            return
+
         chart_data_map = frappe._dict()
         for entry in self.data:
-            base_value = entry.get(scrub(self.filters.based_on))
-            if base_value:
-                if base_value not in chart_data_map:
-                    chart_data_map[base_value] = {
+            user = entry.get("user")
+            if user:
+                if user not in chart_data_map:
+                    chart_data_map[user] = {
                         "open_count": 0,
                         "replied": 0,
                         "on_hold": 0,
                         "resolved": 0,
                         "closed": 0
                     }
-                chart_data_map[base_value]["open_count"] += int(entry.get("open_count") or 0)
-                chart_data_map[base_value]["replied"] += int(entry.get("replied") or 0)
-                chart_data_map[base_value]["on_hold"] += int(entry.get("on_hold") or 0)
-                chart_data_map[base_value]["resolved"] += int(entry.get("resolved") or 0)
-                chart_data_map[base_value]["closed"] += int(entry.get("closed") or 0)
+                chart_data_map[user]["open_count"] += int(entry.get("opened") or 0)
+                chart_data_map[user]["replied"] += int(entry.get("replied") or 0)
+                chart_data_map[user]["on_hold"] += int(entry.get("on_hold") or 0)
+                chart_data_map[user]["resolved"] += int(entry.get("resolved") or 0)
+                chart_data_map[user]["closed"] += int(entry.get("closed") or 0)
+
         labels = []
         open_issues = []
         replied_issues = []
         on_hold_issues = []
         resolved_issues = []
         closed_issues = []
-        for base_value in list(chart_data_map.keys())[:30]:
-            labels.append(base_value)
-            open_issues.append(chart_data_map[base_value]["open_count"])
-            replied_issues.append(chart_data_map[base_value]["replied"])
-            on_hold_issues.append(chart_data_map[base_value]["on_hold"])
-            resolved_issues.append(chart_data_map[base_value]["resolved"])
-            closed_issues.append(chart_data_map[base_value]["closed"])
+
+        for user in list(chart_data_map.keys())[:30]:
+            labels.append(user)
+            open_issues.append(chart_data_map[user]["open_count"])
+            replied_issues.append(chart_data_map[user]["replied"])
+            on_hold_issues.append(chart_data_map[user]["on_hold"])
+            resolved_issues.append(chart_data_map[user]["resolved"])
+            closed_issues.append(chart_data_map[user]["closed"])
+
         self.chart = {
             "data": {
                 "labels": labels,
@@ -222,12 +196,14 @@ class HospitalityIssueResolutionByUser:
         on_hold = 0
         resolved = 0
         closed = 0
+
         for entry in self.data:
-            open_issues += int(entry.get("open_count") or 0)
+            open_issues += int(entry.get("opened") or 0)
             replied += int(entry.get("replied") or 0)
             on_hold += int(entry.get("on_hold") or 0)
             resolved += int(entry.get("resolved") or 0)
             closed += int(entry.get("closed") or 0)
+
         self.report_summary = [
             {
                 "value": open_issues,
@@ -260,3 +236,5 @@ class HospitalityIssueResolutionByUser:
                 "datatype": "Int",
             },
         ]
+        
+        
