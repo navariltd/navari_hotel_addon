@@ -46,7 +46,7 @@ fixtures = [
 # app_include_js = "/assets/navari_hotel_addon/js/navari_hotel_addon.js"
 app_include_js = [
 	# "/assets/navari_hotel_addon/js/navari_hotel_addon.js",
-	"navari_hotel_addon/public/js/taxes_and_totals.js"
+	"/assets/navari_hotel_addon/js/taxes_and_totals.js"
 ]
 
 # include js, css files in header of web template
