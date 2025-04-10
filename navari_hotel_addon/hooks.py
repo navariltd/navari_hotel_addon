@@ -29,11 +29,12 @@ fixtures = [
 					"Issue-issue_allocation",
 					"Sales Taxes and Charges-hidden",
                     "Sales Order-hide_total_without_tax",
-                    "Quotation-hide_total_without_tax",	
-                    "Sales Order-custom_section_break_u1btt",
+                    "Quotation-hide_total_without_tax",
+                    "Sales Order-custom_column_break_jzwev",
                     "Sales Order-custom_lost_reasons",
-					"Sales Order-custom_competitor"
+					"Sales Order-custom_competitor",
 					"Sales Order-custom_detailed_reason",
+                    "Sales Order-custom_section_break_u1btt",
                 ),
             ]
         ],
