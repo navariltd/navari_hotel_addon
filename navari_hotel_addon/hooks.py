@@ -30,7 +30,10 @@ fixtures = [
 					"Sales Taxes and Charges-hidden",
                     "Sales Order-hide_total_without_tax",
                     "Quotation-hide_total_without_tax",	
-
+                    "Sales Order-custom_section_break_u1btt",
+                    "Sales Order-custom_lost_reasons",
+					"Sales Order-custom_competitor"
+					"Sales Order-custom_detailed_reason",
                 ),
             ]
         ],
@@ -65,6 +68,9 @@ app_include_js = [
 
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {
+    "Sales Order": "public/js/sales_order.js",
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
