@@ -1,5 +1,5 @@
-frappe.ui.form.on("Sales Order", {
-
+//For parent doc
+frappe.ui.form.on('Quotation', {
     onload: function (frm) {
         cur_frm.set_query("company_payment_terms", function () {
             return {
@@ -8,10 +8,10 @@ frappe.ui.form.on("Sales Order", {
                 ]
             };
         });
-        cur_frm.set_query("tc_name", function () {
+        cur_frm.set_query("quotation_template", function () {
             return {
                 filters: [
-                    ["Terms and Conditions", "applicable_section", "in", ["Terms and Conditions"]]
+                    ["Terms and Conditions", "applicable_section", "in", ["Quotation Template"]]
                 ]
             };
         });
@@ -37,96 +37,20 @@ frappe.ui.form.on("Sales Order", {
             };
         });
     },
-    
-    refresh: function(frm) {
-
-        // Fetch fields from masters
+    //Fetch fields from masters
+    refresh: function (frm) {
         cur_frm.add_fetch('account_manager_email', 'full_name', 'account_manager_name');
         frm.set_df_property("account_manager_email", "read_only", frm.is_new() ? 0 : 1);
         frm.set_df_property("account_manager_name", "read_only", frm.is_new() ? 0 : 1);
         frm.set_df_property("account_manager_phone", "read_only", frm.is_new() ? 0 : 1);
+        cur_frm.add_fetch('sales_stage', '_sales_stage', '_sales_stage');
         cur_frm.add_fetch('company_payment_terms', 'terms', 'payment_terms');
+        cur_frm.add_fetch('quotation_template', 'terms', 'quotation_details');
         cur_frm.add_fetch('cancellation_policy', 'terms', 'policy');
         cur_frm.add_fetch('payment_options', 'terms', 'pay_to');
         //Footer
         cur_frm.add_fetch('footer_link', 'terms', 'footer');
-
-        if (frm.doc.docstatus === 1 && !["Completed", "Cancelled"].includes(frm.doc.status)) {
-            frm.add_custom_button(__("Set as Lost"), function() {
-                frm.trigger("set_as_lost_dialog");
-            }, __("Status"));
-        }
-    },
-
-    //Calculate unpaid amount
-    validate: function (frm) {
-        frm.trigger("calculate_unpaid_amount");
-    },
-    final_invoice_amount: function (frm) {
-        frm.trigger("calculate_unpaid_amount");
-    },
-    final_paid_amount: function (frm) {
-        frm.trigger("calculate_unpaid_amount");
-    },
-    calculate_final_unpaid_amount: function (frm) {
-        if (frm.doc.final_invoice_amount && frm.doc.final_paid_amount) {
-            final_unpaid_amount = flt(frm.doc.final_invoice_amount - frm.doc.final_paid_amount);
-            frm.set_value('final_unpaid_amount', final_unpaid_amount);
-            frm.refresh_field("final_unpaid_amount");
-        }
-    },
-
-    set_as_lost_dialog: function(frm) {
-        // Create a dialog to confirm and optionally capture a reason
-        let dialog = new frappe.ui.Dialog({
-            title: __("Set Sales Order as Lost"),
-            fields: [
-                {
-                    fieldname: "lost_reasons",
-                    fieldtype: "Table MultiSelect",
-                    options: "Sales Order Lost Reason Detail",
-                    label: __("Lost Reason"),
-                    default: frm.doc.lost_reasons || [],
-                },
-                {
-                    fieldname: "competitor",
-                    fieldtype: "Link",
-                    options: "Competitor",
-                    label: __("Competitor"),
-                    default: frm.doc.competitor || "",
-                },
-                {
-                    fieldname: "detailed_reason",
-                    fieldtype: "Small Text",
-                    label: __("Detailed Reason"),
-                    default: frm.doc.detailed_reason || "",
-                }
-            ],
-            primary_action_label: __("Confirm"),
-            primary_action: function(values) {
-                frappe.call({
-                    method: "frappe.client.set_value",
-                    args: {
-                        doctype: "Sales Order",
-                        name: frm.doc.name,
-                        fieldname: {
-                            "lost_reasons": values.lost_reasons,
-                            "competitor": values.competitor,
-                            "detailed_reason": values.detailed_reason
-                        }
-                    },
-                    callback: function(r) {
-                        if (!r.exc) {
-                            frm.save("Cancel");
-                            frm.reload_doc();
-                        }
-                    }
-                });
-                dialog.hide();
-            }
-        });
-        dialog.show();
-    },
+    }
 });
 
 //End date validation on End date change
@@ -180,7 +104,7 @@ var end_date_calculation = function (frm, cdt, cdn) {
 }
 
 //For Childdoctype
-frappe.ui.form.on("Sales Order Item", "item_code", function (frm, cdt, cdn) {
+frappe.ui.form.on("Quotation Item", "item_code", function (frm, cdt, cdn) {
     //Fetch reservation_option from item 
     var d = locals[cdt][cdn];
     frappe.db.get_value("Item", { "name": d.item_code }, "reservation_option", function (value) {
@@ -188,16 +112,23 @@ frappe.ui.form.on("Sales Order Item", "item_code", function (frm, cdt, cdn) {
     });
 })
 
-frappe.ui.form.on("Sales Order Item", "end_date", function (frm, cdt, cdn) {
+frappe.ui.form.on("Quotation Item", "end_date", function (frm, cdt, cdn) {
     //End date validation on End date change
     end_date_start_date_validation(frm, cdt, cdn);
     //Days or Dates Calculation
     days_calculation(frm, cdt, cdn);
 })
 
-frappe.ui.form.on("Sales Order Item", "start_date", function (frm, cdt, cdn) {
+frappe.ui.form.on("Quotation Item", "start_date", function (frm, cdt, cdn) {
     //End date validation on End date change
     end_date_start_date_validation(frm, cdt, cdn);
     //Days or Dates Calculation
     days_calculation(frm, cdt, cdn);
 })
+
+//frappe.ui.form.on("Quotation Item", "days", function (frm, cdt, cdn) {
+    //End date validation on End date change
+    //end_date_start_date_validation(frm, cdt, cdn);
+    //Days or Dates Calculation
+    //end_date_calculation(frm, cdt, cdn);
+//})
