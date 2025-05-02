@@ -1,78 +1,10 @@
 frappe.ui.form.on("Sales Order", {
-
-    onload: function (frm) {
-        cur_frm.set_query("company_payment_terms", function () {
-            return {
-                filters: [
-                    ["Terms and Conditions", "applicable_section", "in", ["Payment Terms"]]
-                ]
-            };
-        });
-        cur_frm.set_query("tc_name", function () {
-            return {
-                filters: [
-                    ["Terms and Conditions", "applicable_section", "in", ["Terms and Conditions"]]
-                ]
-            };
-        });
-        cur_frm.set_query("cancellation_policy", function () {
-            return {
-                filters: [
-                    ["Terms and Conditions", "applicable_section", "in", ["Cancellation Policy"]]
-                ]
-            };
-        });
-        cur_frm.set_query("payment_options", function () {
-            return {
-                filters: [
-                    ["Terms and Conditions", "applicable_section", "in", ["Payment Options"]]
-                ]
-            };
-        });
-        cur_frm.set_query("footer_link", function () {
-            return {
-                filters: [
-                    ["Terms and Conditions", "applicable_section", "in", ["Footer"]]
-                ]
-            };
-        });
-    },
-    
     refresh: function(frm) {
-
-        // Fetch fields from masters
-        cur_frm.add_fetch('account_manager_email', 'full_name', 'account_manager_name');
-        frm.set_df_property("account_manager_email", "read_only", frm.is_new() ? 0 : 1);
-        frm.set_df_property("account_manager_name", "read_only", frm.is_new() ? 0 : 1);
-        frm.set_df_property("account_manager_phone", "read_only", frm.is_new() ? 0 : 1);
-        cur_frm.add_fetch('company_payment_terms', 'terms', 'payment_terms');
-        cur_frm.add_fetch('cancellation_policy', 'terms', 'policy');
-        cur_frm.add_fetch('payment_options', 'terms', 'pay_to');
-        //Footer
-        cur_frm.add_fetch('footer_link', 'terms', 'footer');
 
         if (frm.doc.docstatus === 1 && !["Completed", "Cancelled"].includes(frm.doc.status)) {
             frm.add_custom_button(__("Set as Lost"), function() {
                 frm.trigger("set_as_lost_dialog");
             }, __("Status"));
-        }
-    },
-
-    //Calculate unpaid amount
-    validate: function (frm) {
-        frm.trigger("calculate_unpaid_amount");
-    },
-    final_invoice_amount: function (frm) {
-        frm.trigger("calculate_unpaid_amount");
-    },
-    final_paid_amount: function (frm) {
-        frm.trigger("calculate_unpaid_amount");
-    },
-    calculate_final_unpaid_amount: function (frm) {
-        if (frm.doc.final_invoice_amount && frm.doc.final_paid_amount) {
-            final_unpaid_amount = flt(frm.doc.final_invoice_amount - frm.doc.final_paid_amount);
-            frm.set_value('final_unpaid_amount', final_unpaid_amount);
-            frm.refresh_field("final_unpaid_amount");
         }
     },
 
