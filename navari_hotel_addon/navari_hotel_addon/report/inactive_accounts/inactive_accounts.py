@@ -7,72 +7,128 @@ from frappe.utils import cint
 
 
 def execute(filters=None):
-	if not filters:
-		filters = {}
+    filters = filters or {}
 
-	days_since_last_order = filters.get("days_since_last_order")
-	doctype = filters.get("doctype")
+    doctype = filters.get("doctype")
+    if not doctype:
+        frappe.throw(_("Please select a Doctype"))
 
-	if cint(days_since_last_order) <= 0:
-		frappe.throw(_("'Days Since Last Order' must be greater than or equal to zero"))
+    columns = get_columns()
 
-	columns = get_columns()
-	customers = get_sales_details(doctype)
+    # 1. Fetch data (SQL includes HAVING based on period or custom dates)
+    rows = get_sales_details(doctype, filters)
 
-	data = []
-	for cust in customers:
-		if cint(cust[8]) >= cint(days_since_last_order):
-			cust.insert(7, get_last_sales_amt(cust[0], doctype))
-			data.append(cust)
-	return columns, data
+    # 2. For each row, insert the value of the very last order before returning
+    data = []
+    for r in rows:
+        # r indices: 0=name,1=customer_name,2=territory,3=group,
+        #            4=num_orders,5=total_value,6=considered,
+        #            7=last_order_date,8=days_since_last_order
+        last_amt = get_last_sales_amt(r[0], doctype)
+        r.insert(7, last_amt)
+        data.append(r)
+
+    return columns, data
 
 
-def get_sales_details(doctype):
-	customer_field = "party_name" if doctype == "Quotation" else "customer"
+def get_sales_details(doctype, filters):
+    """Builds and runs the main aggregation query, applying HAVING clauses
+    for Last Week/Month/Year or a custom from-to date range."""
+    customer_field = "party_name" if doctype == "Quotation" else "customer"
+    if doctype in ("Sales Order", "Quotation"):
+        date_field = "transaction_date"
+    else:
+        date_field = "posting_date"
+        
+	# Only sales order needs the IF(per_delivered) logic
+    if doctype == "Sales Order":
+        total_considered = """
+			SUM(
+                IF(so.status='Stopped',
+                   so.base_net_total * so.per_delivered/100,
+                   so.base_net_total)
+            ) AS total_order_considered,	
+		"""
+    else:
+        total_considered = "SUM(so.base_net_total) AS total_order_considered"
 
-	cond = """sum(so.base_net_total) as 'total_order_considered',
-			max(so.posting_date) as 'last_order_date',
-			DATEDIFF(CURRENT_DATE, max(so.posting_date)) as 'days_since_last_order' """
-	if doctype == "Sales Order":
-		cond = """sum(if(so.status = "Stopped",
-				so.base_net_total * so.per_delivered/100,
-				so.base_net_total)) as 'total_order_considered',
-			max(so.transaction_date) as 'last_order_date',
-			DATEDIFF(CURRENT_DATE, max(so.transaction_date)) as 'days_since_last_order'"""
-	if doctype == "Quotation":
-		cond = """sum(so.base_net_total) as 'total_order_considered',
-				max(so.transaction_date) as 'last_order_date',
-				DATEDIFF(CURRENT_DATE, max(so.transaction_date)) as 'days_since_last_order'"""
+    # Base aggregation
+    base = f"""
+        SELECT
+            cust.name,
+            cust.customer_name,
+            cust.territory,
+            cust.customer_group,
+            COUNT(DISTINCT so.name) AS num_of_order,
+            SUM(so.base_net_total)    AS total_order_value,
+            {total_considered},
+            MAX(so.`{date_field}`)     AS last_order_date,
+            DATEDIFF(CURDATE(), MAX(so.`{date_field}`)) AS days_since_last_order
+        FROM `tabCustomer` cust
+        JOIN `tab{doctype}` so
+          ON cust.name = so.`{customer_field}`
+         AND so.docstatus = 1
+        GROUP BY cust.name
+    """
 
-	return frappe.db.sql(
-		f"""select
-			cust.name,
-			cust.customer_name,
-			cust.territory,
-			cust.customer_group,
-			count(distinct(so.name)) as 'num_of_order',
-			sum(base_net_total) as 'total_order_value', {cond}
-		from `tabCustomer` cust, `tab{doctype}` so
-		where cust.name = so.{customer_field} and so.docstatus = 1
-		group by cust.name
-		order by 'days_since_last_order' desc """,
-		as_list=1,
-	)
+    clauses = []
+    args    = {}
+
+    period = filters.get("last_order_period")
+    if period == "Last Week":
+        # previous Mon–Sun
+        clauses.append("""
+            last_order_date BETWEEN
+              DATE_SUB(CURDATE(), INTERVAL (WEEKDAY(CURDATE())+7) DAY)
+            AND
+              DATE_SUB(CURDATE(), INTERVAL (WEEKDAY(CURDATE())+1) DAY)
+        """.strip())
+
+    elif period == "Last Month":
+        # first and last day of last calendar month
+        clauses.append("""
+            last_order_date BETWEEN
+              DATE_SUB(DATE_SUB(CURDATE(), INTERVAL DAY(CURDATE())-1 DAY), INTERVAL 1 MONTH)
+            AND
+              LAST_DAY(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
+        """.strip())
+
+    elif period == "Last Year":
+        # any day in the previous calendar year
+        clauses.append("YEAR(last_order_date) = YEAR(CURDATE()) - 1")
+
+    # Custom date range overrides the period
+    if filters.get("last_order_from") and filters.get("last_order_to"):
+        clauses.append("last_order_date BETWEEN %(from)s AND %(to)s")
+        args.update({
+            "from": filters["last_order_from"],
+            "to":   filters["last_order_to"],
+        })
+
+    having = clauses and ("HAVING " + " AND ".join(clauses)) or ""
+    query  = f"""{base}
+				{having}
+				ORDER BY last_order_date DESC
+			"""
+
+    return frappe.db.sql(query, args, as_list=1)
 
 
 def get_last_sales_amt(customer, doctype):
-	customer_field = "party_name" if doctype == "Quotation" else "customer"
-	cond = "posting_date"
-	if doctype in ["Sales Order", "Quotation"]:
-		cond = "transaction_date"
-	res = frappe.db.sql(
-		f"""select base_net_total from `tab{doctype}`
-		where {customer_field} = %s and docstatus = 1 order by {cond} desc
-		limit 1""",
-		customer,
-	)
+    """Fetch the base_net_total of the single most-recent record."""
+    customer_field = "party_name" if doctype == "Quotation" else "customer"
+    date_field     = doctype in ("Sales Order", "Quotation") and "transaction_date" or "posting_date"
 
-	return res and res[0][0] or 0
+    res = frappe.db.sql(
+        f"""SELECT base_net_total
+            FROM `tab{doctype}`
+            WHERE `{customer_field}` = %s
+              AND docstatus = 1
+            ORDER BY `{date_field}` DESC
+            LIMIT 1""",
+        customer,
+    )
+    return (res and res[0][0]) or 0
 
 
 def get_columns():
