@@ -43,12 +43,12 @@ def get_sales_details(doctype, filters):
 	# Only sales order needs the IF(per_delivered) logic
     if doctype == "Sales Order":
         total_considered = """
-			SUM(
+            SUM(
                 IF(so.status='Stopped',
-                   so.base_net_total * so.per_delivered/100,
-                   so.base_net_total)
-            ) AS total_order_considered,	
-		"""
+                so.base_net_total * IFNULL(so.per_delivered, 0)/100,
+                so.base_net_total)
+            ) AS total_order_considered
+        """
     else:
         total_considered = "SUM(so.base_net_total) AS total_order_considered"
 
