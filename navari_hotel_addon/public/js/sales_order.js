@@ -1,8 +1,10 @@
 frappe.ui.form.on("Sales Order", {
     
     refresh: function(frm) {
-        if (frm.doc.docstatus === 1 && !["Completed", "Cancelled"].includes(frm.doc.status)) {
-            frm.add_custom_button(__("Set as Lost"), function() {
+        if (frm.doc.docstatus === 1 
+            && !["Completed", "Cancelled", "Closed"].includes(frm.doc.status)
+        ) {
+            frm.add_custom_button(__("Lost"), function() {
                 frm.trigger("set_as_lost_dialog");
             }, __("Status"));
         }
@@ -18,6 +20,7 @@ frappe.ui.form.on("Sales Order", {
                     fieldtype: "Table MultiSelect",
                     options: "Sales Order Lost Reason Detail",
                     label: __("Lost Reason"),
+                    reqd: 1,
                     default: frm.doc.lost_reasons || [],
                 },
                 {
@@ -48,10 +51,17 @@ frappe.ui.form.on("Sales Order", {
                         }
                     },
                     callback: function(r) {
-                        if (!r.exc) {
-                            frm.save("Cancel");
-                            frm.reload_doc();
-                        }
+                        frappe.call({
+                            method: "erpnext.selling.doctype.sales_order.sales_order.close_or_unclose_sales_orders",
+                            args: {
+                                names: JSON.stringify([frm.doc.name]),
+                                status: 'Closed'
+                            },
+                            callback: () => {
+                                frm.reload_doc();
+                                frappe.msgprint(`Sales Order ${frm.doc.name} set as Lost`);
+                            }
+                        })
                     }
                 });
                 dialog.hide();
