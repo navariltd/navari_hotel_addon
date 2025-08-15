@@ -20,15 +20,17 @@ def execute(filters=None):
     else:
     # 1. Fetch data (SQL includes HAVING based on period or custom dates)
         rows = get_sales_details(doctype, filters)
-        # insert last order amount for each row
+     # 2. insert last order amount for each row
         data = []
         for r in rows:
             last_amt = get_last_sales_amt(r[0], doctype)
+        # r indices: 0=name,1=customer_name,2=territory,3=group,
+        #            4=num_orders,5=total_value,6=considered,
+        #            7=last_order_date,8=days_since_last_order
             r.insert(7, last_amt)  # shifts later columns forward
             r.append(doctype)      # Add source doctype column
             data.append(r)
         rows = data
-
     return columns, rows
 
 
@@ -52,6 +54,15 @@ def get_sales_details(doctype, filters):
         """
     else:
         total_considered = "SUM(so.base_net_total) AS total_order_considered"
+        
+     # WHERE conditions (customer and docstatus)
+    where_clauses = ["so.docstatus = 1"]
+    args = {}
+    if filters.get("customer"):
+        where_clauses.append("cust.name = %(customer)s")
+        args["customer"] = filters["customer"]
+
+    where_sql = " AND ".join(where_clauses)
 
     # Base aggregation
     base = f"""
@@ -68,13 +79,12 @@ def get_sales_details(doctype, filters):
         FROM `tabCustomer` cust
         JOIN `tab{doctype}` so
           ON cust.name = so.`{customer_field}`
-         AND so.docstatus = 1
+        WHERE {where_sql}
         GROUP BY cust.name
     """
 
     clauses = []
-    args    = {}
-
+    
     period = filters.get("last_order_period")
     if period == "Last Week":
         # previous Mon–Sun
@@ -132,21 +142,6 @@ def get_last_sales_amt(customer, doctype):
     return (res and res[0][0]) or 0
 
 
-
-def get_columns():
-    return [
-        _("Customer") + ":Link/Customer:120",
-        _("Customer Name") + ":Data:120",
-        _("Territory") + "::120",
-        _("Customer Group") + "::120",
-        _("Number of Order") + "::120",
-        _("Total Order Value") + ":Currency:120",
-        _("Total Order Considered") + ":Currency:160",
-        _("Last Order Amount") + ":Currency:160",
-        _("Last Order Date") + ":Date:160",
-        _("Days Since Last Order") + "::160",
-        _("Source Doctype") + "::140",
-    ]
 def get_last_activity_all(filters):
     """Get most recent activity across Quotation, Sales Order, and Sales Invoice for each customer,
     applying period/date range filters."""
@@ -158,6 +153,12 @@ def get_last_activity_all(filters):
     ]
 
     period_filter_sql, date_args = build_period_filters(filters)
+    
+       # Customer filter
+    customer_condition = ""
+    if filters.get("customer"):
+        customer_condition = "AND cust.name = %(customer)s"
+        date_args["customer"] = filters["customer"]
 
     queries = []
     for doctype, customer_field, date_field in mapping:
@@ -177,7 +178,9 @@ def get_last_activity_all(filters):
             FROM `tabCustomer` cust
             JOIN `tab{doctype}` so
               ON cust.name = so.`{customer_field}`
-             AND so.docstatus = 1
+              AND so.docstatus = 1
+            WHERE 1=1
+              {customer_condition}
             {period_filter_sql.replace('last_order_date', f"so.`{date_field}`")}
         """)
 
@@ -200,6 +203,8 @@ def get_last_activity_all(filters):
     """
 
     return frappe.db.sql(final_query, date_args, as_list=1)
+
+
 def build_period_filters(filters):
     """Return SQL WHERE clause and args for period or custom date range."""
     clauses = []
@@ -235,3 +240,19 @@ def build_period_filters(filters):
         where_sql = "WHERE " + " AND ".join(clauses)
 
     return where_sql, args
+
+
+def get_columns():
+    return [
+        _("Customer") + ":Link/Customer:120",
+        _("Customer Name") + ":Data:120",
+        _("Territory") + "::120",
+        _("Customer Group") + "::120",
+        _("Number of Order") + "::120",
+        _("Total Order Value") + ":Currency:120",
+        _("Total Order Considered") + ":Currency:160",
+        _("Last Order Amount") + ":Currency:160",
+        _("Last Order Date") + ":Date:160",
+        _("Days Since Last Order") + "::160",
+        _("Source Doctype") + "::140",
+    ]
