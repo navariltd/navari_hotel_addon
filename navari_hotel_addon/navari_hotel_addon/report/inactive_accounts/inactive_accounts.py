@@ -235,9 +235,7 @@ def build_period_filters(filters):
             "to": filters["last_order_to"],
         })
 
-    where_sql = ""
-    if clauses:
-        where_sql = "WHERE " + " AND ".join(clauses)
+    where_sql = f"AND {' AND '.join(clauses)}" if clauses else ""
 
     return where_sql, args
 
@@ -254,5 +252,5 @@ def get_columns():
         _("Last Order Amount") + ":Currency:160",
         _("Last Order Date") + ":Date:160",
         _("Days Since Last Order") + "::160",
-        _("Source Doctype") + "::140",
+        _("Type") + "::140",
     ]

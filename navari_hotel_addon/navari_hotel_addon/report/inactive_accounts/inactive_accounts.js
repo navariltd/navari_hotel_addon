@@ -5,7 +5,7 @@ frappe.query_reports["Inactive Accounts"] = {
   filters: [
     {
       fieldname: "customer",
-      label: __("Customer"),
+      label: __("Search Customer"),
       fieldtype: "Link",
       options: "Customer",
     },
