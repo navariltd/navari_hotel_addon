@@ -78,7 +78,11 @@ def get_data(filters):
             if s["total_quotations"] else 0
         )
 
-    return list(summary.values())
+    data = list(summary.values())
+
+    data.sort(key=lambda x: x["quotation_template"])
+
+    return data
 
 def get_columns():
     return [
