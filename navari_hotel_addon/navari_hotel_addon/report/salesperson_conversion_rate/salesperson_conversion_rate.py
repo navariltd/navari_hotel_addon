@@ -66,7 +66,7 @@ def execute(filters=None):
 			q.account_manager_name AS sales_person,
 			q.account_manager_email,
 			COUNT(q.name) AS total_quotations,
-			SUM(CASE WHEN q.status = 'Ordered' THEN 1 ELSE 0 END) AS converted
+			SUM(CASE WHEN q.status IN ('Ordered', 'Partially Ordered') THEN 1 ELSE 0 END) AS converted
 		FROM `tabQuotation` q
 		{where_clause}
 		GROUP BY q.account_manager_email
