@@ -6,6 +6,8 @@ erpnext.taxes_and_totals.prototype.calculate_item_values = function () {
   if (!this.discount_amount_applied) {
     for (const item of this.frm._items || []) {
       frappe.model.round_floats_in(item);
+
+      const p = frappe.get_precision(item.doctype, "amount") || frappe.boot.sysdefaults.float_precision || 2;
       item.net_rate = item.rate;
       item.qty =
         item.qty === undefined ? (me.frm.doc.is_return ? -1 : 1) : item.qty;
@@ -13,7 +15,7 @@ erpnext.taxes_and_totals.prototype.calculate_item_values = function () {
       if (!(me.frm.doc.is_return || me.frm.doc.is_debit_note)) {
         item.net_amount = item.amount = flt(
           item.rate * item.qty,
-          precision("amount", item)
+          p
         );
       } else {
         // allow for '0' qty on Credit/Debit notes
@@ -31,7 +33,7 @@ erpnext.taxes_and_totals.prototype.calculate_item_values = function () {
 
         item.net_amount = item.amount = flt(
           item.rate * qty * item.days,
-          precision("amount", item)
+          p
         );
       }
 
