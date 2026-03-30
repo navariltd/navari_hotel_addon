@@ -7,7 +7,9 @@ erpnext.taxes_and_totals.prototype.calculate_item_values = function () {
     for (const item of this.frm._items || []) {
       frappe.model.round_floats_in(item);
 
-      const p = frappe.get_precision(item.doctype, "amount") || frappe.boot.sysdefaults.float_precision || 2;
+      const df = frappe.meta.get_docfield(item.doctype, "amount", me.frm.doc.name);
+
+      const p = frappe.meta.get_field_precision(df, item) || frappe.boot.sysdefaults.float_precision || 2;
       item.net_rate = item.rate;
       item.qty =
         item.qty === undefined ? (me.frm.doc.is_return ? -1 : 1) : item.qty;
