@@ -1,15 +1,11 @@
-from . import __version__ as app_version
-from navari_hotel_addon.controllers.taxes_and_totals import calculate_item_values_override
-
 app_name = "navari_hotel_addon"
 app_title = "Navari Customizations for Hospitality"
 app_publisher = "Navari Limited"
 app_description = "Navari Customizations for Hospitality"
-app_icon = "octicon octicon-file-directory"
-app_color = "grey"
-app_email = "info@navari.co.ke"
+app_email = "solutions@navari.co.ke"
 app_license = "GNU General Public License (v3)"
-required_apps = ["frappe/erpnext"]
+
+required_apps = ["erpnext"]
 
 
 fixtures = [
@@ -192,27 +188,23 @@ doctype_js = {
 # --------------------
 
 user_data_fields = [
-	{
-		"doctype": "{doctype_1}",
-		"filter_by": "{filter_by}",
-		"redact_fields": ["{field_1}", "{field_2}"],
-		"partial": 1,
-	},
-	{
-		"doctype": "{doctype_2}",
-		"filter_by": "{filter_by}",
-		"partial": 1,
-	},
-	{
-		"doctype": "{doctype_3}",
-		"strict": False,
-	},
-	{
-		"doctype": "{doctype_4}"
-	}
+    {
+        "doctype": "{doctype_1}",
+        "filter_by": "{filter_by}",
+        "redact_fields": ["{field_1}", "{field_2}"],
+        "partial": 1,
+    },
+    {
+        "doctype": "{doctype_2}",
+        "filter_by": "{filter_by}",
+        "partial": 1,
+    },
+    {
+        "doctype": "{doctype_3}",
+        "strict": False,
+    },
+    {"doctype": "{doctype_4}"},
 ]
-
-calculate_item_values_override()
 
 # Authentication and authorization
 # --------------------------------
