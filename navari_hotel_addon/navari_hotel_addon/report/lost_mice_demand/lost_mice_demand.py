@@ -3,17 +3,20 @@
 
 import frappe
 
+
 def execute(filters=None):
     filters = filters or {}
     where_clause = build_conditions(filters)
-    
+
     quotations = get_quotations(where_clause, filters)
     quotation_lost_reasons = get_lost_reasons(quotations, filters)
     ageing_limits = parse_ageing_buckets(filters.get("ageing_buckets"))
     bucket_labels = get_bucket_labels(ageing_limits)
     measure_by = filters.get("measure_by", "Pax")
-    
-    result_data = aggregate_quotations(quotations, quotation_lost_reasons, ageing_limits, bucket_labels, measure_by)
+
+    result_data = aggregate_quotations(
+        quotations, quotation_lost_reasons, ageing_limits, bucket_labels, measure_by
+    )
     result_data.sort(key=lambda x: x["lost_reason"])
     columns = build_columns(bucket_labels)
 
@@ -32,8 +35,20 @@ def build_conditions(filters):
         sales_person_user = filters.get("sales_person")
         sales_person_email = frappe.db.get_value("User", sales_person_user, "email")
         sales_person_name = frappe.db.get_value("User", sales_person_user, "full_name")
-        email_condition = f"q.account_manager_email = '{sales_person_email}'" if sales_person_email else "1=0"
-        name_condition = f"q.account_manager_name = '{sales_person_name}'" if sales_person_name else "1=0"
+        # Bind the stored values: names such as O'Brien must never be pasted into SQL.
+        # `filters` is passed to frappe.db.sql as the bind values (see get_quotations).
+        filters["sales_person_email"] = sales_person_email
+        filters["sales_person_name"] = sales_person_name
+        email_condition = (
+            "q.account_manager_email = %(sales_person_email)s"
+            if sales_person_email
+            else "1=0"
+        )
+        name_condition = (
+            "q.account_manager_name = %(sales_person_name)s"
+            if sales_person_name
+            else "1=0"
+        )
         conditions.append(f"({email_condition} OR {name_condition})")
 
     if filters.get("customer"):
@@ -68,7 +83,7 @@ def get_lost_reasons(quotations, filters):
     if not quotations:
         return {}
 
-    quotation_names = [q['quotation'] for q in quotations]
+    quotation_names = [q["quotation"] for q in quotations]
     query = """
         SELECT 
             parent AS quotation,
@@ -80,15 +95,15 @@ def get_lost_reasons(quotations, filters):
         query += " AND lost_reason = %(lost_reason)s"
 
     data = frappe.db.sql(
-        query, 
-        {"quotation_names": quotation_names, "lost_reason": filters.get("lost_reason")}, 
-        as_dict=True
+        query,
+        {"quotation_names": quotation_names, "lost_reason": filters.get("lost_reason")},
+        as_dict=True,
     )
 
     # Map lost reasons to quotations
     result = {}
     for lr in data:
-        result.setdefault(lr['quotation'], []).append(lr['reason'])
+        result.setdefault(lr["quotation"], []).append(lr["reason"])
     return result
 
 
@@ -105,26 +120,34 @@ def parse_ageing_buckets(bucket_string):
     return sorted(limits)
 
 
-def aggregate_quotations(quotations, quotation_lost_reasons, ageing_limits, bucket_labels, measure_by):
+def aggregate_quotations(
+    quotations, quotation_lost_reasons, ageing_limits, bucket_labels, measure_by
+):
     summary = {}
 
     for q in quotations:
-        quotation_name = q['quotation']
+        quotation_name = q["quotation"]
         lost_reason_list = quotation_lost_reasons.get(quotation_name, ["Not Specified"])
 
-        measure_value = q.get("total_pax_days") if measure_by == "Pax-Days" else q.get("total_qty") or 0
+        measure_value = (
+            q.get("total_pax_days")
+            if measure_by == "Pax-Days"
+            else q.get("total_qty") or 0
+        )
         bucket = get_ageing_bucket(measure_value, ageing_limits)
 
         for lost_reason in lost_reason_list:
             if lost_reason not in summary:
                 summary[lost_reason] = {label: 0 for label in bucket_labels}
-                summary[lost_reason].update({
-                    "lost_reason": lost_reason,
-                    "total_quotations": 0,
-                    "total_pax": 0,
-                    "total_pax_days": 0,
-                    "total_value": 0
-                })
+                summary[lost_reason].update(
+                    {
+                        "lost_reason": lost_reason,
+                        "total_quotations": 0,
+                        "total_pax": 0,
+                        "total_pax_days": 0,
+                        "total_value": 0,
+                    }
+                )
 
             summary[lost_reason][bucket] += 1
             summary[lost_reason]["total_quotations"] += 1
@@ -137,16 +160,47 @@ def aggregate_quotations(quotations, quotation_lost_reasons, ageing_limits, buck
 
 def build_columns(bucket_labels):
     columns = [
-        {"label": "Lost Reason", "fieldname": "lost_reason", "fieldtype": "Data", "width": 200},
+        {
+            "label": "Lost Reason",
+            "fieldname": "lost_reason",
+            "fieldtype": "Data",
+            "width": 200,
+        },
     ]
     for label in bucket_labels:
-        columns.append({"label": label, "fieldname": label, "fieldtype": "Int", "width": 100})
-    columns.extend([
-        {"label": "Total Quotations", "fieldname": "total_quotations", "fieldtype": "Int", "width": 140},
-        {"label": "Total Pax", "fieldname": "total_pax", "fieldtype": "Float", "width": 100},
-        {"label": "Total Pax-Days", "fieldname": "total_pax_days", "fieldtype": "Float", "width": 140, "hidden": 1},
-        {"label": "Total Value", "fieldname": "total_value", "fieldtype": "Currency", "width": 150, "hidden": 1},
-    ])
+        columns.append(
+            {"label": label, "fieldname": label, "fieldtype": "Int", "width": 100}
+        )
+    columns.extend(
+        [
+            {
+                "label": "Total Quotations",
+                "fieldname": "total_quotations",
+                "fieldtype": "Int",
+                "width": 140,
+            },
+            {
+                "label": "Total Pax",
+                "fieldname": "total_pax",
+                "fieldtype": "Float",
+                "width": 100,
+            },
+            {
+                "label": "Total Pax-Days",
+                "fieldname": "total_pax_days",
+                "fieldtype": "Float",
+                "width": 140,
+                "hidden": 1,
+            },
+            {
+                "label": "Total Value",
+                "fieldname": "total_value",
+                "fieldtype": "Currency",
+                "width": 150,
+                "hidden": 1,
+            },
+        ]
+    )
     return columns
 
 

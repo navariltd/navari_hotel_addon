@@ -2,46 +2,46 @@
 // For license information, please see license.txt
 
 frappe.query_reports["Hospitality Issue Resolution by User"] = {
-  filters: [
-    {
-      fieldname: "company",
-      label: "Company",
-      fieldtype: "Link",
-      options: "Company",
-      default: frappe.defaults.get_user_default("Company"),
-      reqd: 1,
-    },
-    {
-      fieldname: "from_date",
-      label: "From Date",
-      fieldtype: "Date",
-      default: frappe.defaults.get_global_default("year_start_date"),
-      reqd: 1,
-    },
-    {
-      fieldname: "to_date",
-      label: "To Date",
-      fieldtype: "Date",
-      default: frappe.defaults.get_global_default("year_end_date"),
-      reqd: 1,
-    },
-    {
-      fieldname: "department",
-      label: "Department",
-      fieldtype: "Link",
-      options: "Department",
-    },
-    {
-      fieldname: "location",
-      label: "Location",
-      fieldtype: "Link",
-      options: "Location",
-    },
-    {
-      fieldname: "issue_type",
-      label: "Issue Type",
-      fieldtype: "Link",
-      options: "Issue Type",
-    },
-  ],
+	filters: [
+		{
+			fieldname: "company",
+			label: "Company",
+			fieldtype: "Link",
+			options: "Company",
+			default: frappe.defaults.get_user_default("Company"),
+			reqd: 1,
+		},
+		{
+			fieldname: "from_date",
+			label: "From Date",
+			fieldtype: "Date",
+			default: frappe.datetime.year_start(),
+			reqd: 1,
+		},
+		{
+			fieldname: "to_date",
+			label: "To Date",
+			fieldtype: "Date",
+			default: frappe.datetime.year_end(),
+			reqd: 1,
+		},
+		{
+			fieldname: "department",
+			label: "Department",
+			fieldtype: "Link",
+			options: "Department",
+		},
+		{
+			fieldname: "location",
+			label: "Location",
+			fieldtype: "Link",
+			options: "Location",
+		},
+		{
+			fieldname: "issue_type",
+			label: "Issue Type",
+			fieldtype: "Link",
+			options: "Issue Type",
+		},
+	],
 };

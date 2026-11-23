@@ -3,47 +3,56 @@
 /* eslint-disable */
 
 frappe.query_reports["Projected Revenue Analytics"] = {
-	"filters": [
+	filters: [
 		{
 			fieldname: "tree_type",
 			label: __("Tree Type"),
 			fieldtype: "Select",
-			options: ["User","Customer Group", "Customer", "Item Group", "Item", "Territory", "Order Type", "Project"],
+			options: [
+				"User",
+				"Customer Group",
+				"Customer",
+				"Item Group",
+				"Item",
+				"Territory",
+				"Order Type",
+				"Project",
+			],
 			default: "User",
-			reqd: 1
+			reqd: 1,
 		},
 		{
 			fieldname: "doc_type",
 			label: __("based_on"),
 			fieldtype: "Select",
-			options: ["Sales Order","Quotation","Sales Invoice"],
+			options: ["Sales Order", "Quotation", "Sales Invoice"],
 			default: "Sales Order",
-			reqd: 1
+			reqd: 1,
 		},
 		{
 			fieldname: "value_quantity",
 			label: __("Value Or Qty"),
 			fieldtype: "Select",
 			options: [
-				{ "value": "Value", "label": __("Value") },
-				{ "value": "Quantity", "label": __("Quantity") },
+				{ value: "Value", label: __("Value") },
+				{ value: "Quantity", label: __("Quantity") },
 			],
 			default: "Value",
-			reqd: 1
+			reqd: 1,
 		},
 		{
 			fieldname: "from_date",
 			label: __("From Date"),
 			fieldtype: "Date",
-			default: frappe.defaults.get_user_default("year_start_date"),
-			reqd: 1
+			default: frappe.datetime.year_start(),
+			reqd: 1,
 		},
 		{
-			fieldname:"to_date",
+			fieldname: "to_date",
 			label: __("To Date"),
 			fieldtype: "Date",
-			default: frappe.defaults.get_user_default("year_end_date"),
-			reqd: 1
+			default: frappe.datetime.year_end(),
+			reqd: 1,
 		},
 		{
 			fieldname: "company",
@@ -51,21 +60,21 @@ frappe.query_reports["Projected Revenue Analytics"] = {
 			fieldtype: "Link",
 			options: "Company",
 			default: frappe.defaults.get_user_default("Company"),
-			reqd: 1
+			reqd: 1,
 		},
 		{
 			fieldname: "range",
 			label: __("Range"),
 			fieldtype: "Select",
 			options: [
-				{ "value": "Weekly", "label": __("Weekly") },
-				{ "value": "Monthly", "label": __("Monthly") },
-				{ "value": "Quarterly", "label": __("Quarterly") },
-				{ "value": "Yearly", "label": __("Yearly") }
+				{ value: "Weekly", label: __("Weekly") },
+				{ value: "Monthly", label: __("Monthly") },
+				{ value: "Quarterly", label: __("Quarterly") },
+				{ value: "Yearly", label: __("Yearly") },
 			],
 			default: "Monthly",
-			reqd: 1
-		}
+			reqd: 1,
+		},
 	],
 	// after_datatable_render: function(datatable_obj) {
 	// 	$(datatable_obj.wrapper).find(".dt-row-0").find('input[type=checkbox]').click();
@@ -76,40 +85,31 @@ frappe.query_reports["Projected Revenue Analytics"] = {
 			events: {
 				onCheckRow: function (data) {
 					if (!data) return;
-					const data_doctype = $(
-						data[2].html
-					)[0].attributes.getNamedItem("data-doctype").value;
+					const data_doctype = $(data[2].html)[0].attributes.getNamedItem(
+						"data-doctype"
+					).value;
 					const tree_type = frappe.query_report.filters[0].value;
 					if (data_doctype != tree_type) return;
 
 					row_name = data[2].content;
 					length = data.length;
-					
-					
+
 					if (tree_type == "User") {
-						row_values = data
-							.slice(4, length - 1)
-							.map(function (column) {
-								return column.content;
-							});
-					}else if (tree_type == "Customer") {
-						row_values = data
-							.slice(4, length - 1)
-							.map(function (column) {
-								return column.content;
-							});
+						row_values = data.slice(4, length - 1).map(function (column) {
+							return column.content;
+						});
+					} else if (tree_type == "Customer") {
+						row_values = data.slice(4, length - 1).map(function (column) {
+							return column.content;
+						});
 					} else if (tree_type == "Item") {
-						row_values = data
-							.slice(5, length - 1)
-							.map(function (column) {
-								return column.content;
-							});
+						row_values = data.slice(5, length - 1).map(function (column) {
+							return column.content;
+						});
 					} else {
-						row_values = data
-							.slice(3, length - 1)
-							.map(function (column) {
-								return column.content;
-							});
+						row_values = data.slice(3, length - 1).map(function (column) {
+							return column.content;
+						});
 					}
 
 					entry = {
@@ -120,13 +120,13 @@ frappe.query_reports["Projected Revenue Analytics"] = {
 					let raw_data = frappe.query_report.chart.data;
 					let new_datasets = raw_data.datasets;
 
-					let element_found = new_datasets.some((element, index, array)=>{
-						if(element.name == row_name){
-							array.splice(index, 1)
-							return true
+					let element_found = new_datasets.some((element, index, array) => {
+						if (element.name == row_name) {
+							array.splice(index, 1);
+							return true;
 						}
-						return false
-					})
+						return false;
+					});
 
 					if (!element_found) {
 						new_datasets.push(entry);
@@ -147,4 +147,4 @@ frappe.query_reports["Projected Revenue Analytics"] = {
 			},
 		});
 	},
-}
+};
