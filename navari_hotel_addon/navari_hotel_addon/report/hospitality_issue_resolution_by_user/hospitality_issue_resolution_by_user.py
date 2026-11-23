@@ -1,13 +1,18 @@
 # Copyright (c) 2025, Navari Limited and contributors
 # For license information, please see license.txt
 
-import frappe
 import json
+
+import frappe
 from frappe import _
+
+# Issues per Version query; keeps the IN list bounded on wide date ranges.
+VERSION_BATCH_SIZE = 1000
 
 
 def execute(filters=None):
     return HospitalityIssueResolutionByUser(filters).run()
+
 
 class HospitalityIssueResolutionByUser:
     def __init__(self, filters=None):
@@ -27,20 +32,67 @@ class HospitalityIssueResolutionByUser:
 
     def get_columns(self):
         self.columns = [
-            {"label": _("User"), "fieldname": "user_link", "fieldtype": "Data", "width": 260},
-            {"label": _("Opened"), "fieldname": "opened", "fieldtype": "Int", "width": 100},
-            {"label": _("Assigned"), "fieldname": "assigned", "fieldtype": "Int", "width": 100},
-            {"label": _("Replied"), "fieldname": "replied", "fieldtype": "Int", "width": 100},
-            {"label": _("Put on Hold"), "fieldname": "on_hold", "fieldtype": "Int", "width": 120},
-            {"label": _("Resolved"), "fieldname": "resolved", "fieldtype": "Int", "width": 100},
-            {"label": _("Closed"), "fieldname": "closed", "fieldtype": "Int", "width": 100},
-            {"label": _("Resolved + Closed"), "fieldname": "resolved_closed", "fieldtype": "Int", "width": 180},
-            {"label": _("Total"), "fieldname": "total", "fieldtype": "Int", "width": 100},
+            {
+                "label": _("User"),
+                "fieldname": "user_link",
+                "fieldtype": "Data",
+                "width": 260,
+            },
+            {
+                "label": _("Opened"),
+                "fieldname": "opened",
+                "fieldtype": "Int",
+                "width": 100,
+            },
+            {
+                "label": _("Assigned"),
+                "fieldname": "assigned",
+                "fieldtype": "Int",
+                "width": 100,
+            },
+            {
+                "label": _("Replied"),
+                "fieldname": "replied",
+                "fieldtype": "Int",
+                "width": 100,
+            },
+            {
+                "label": _("Put on Hold"),
+                "fieldname": "on_hold",
+                "fieldtype": "Int",
+                "width": 120,
+            },
+            {
+                "label": _("Resolved"),
+                "fieldname": "resolved",
+                "fieldtype": "Int",
+                "width": 100,
+            },
+            {
+                "label": _("Closed"),
+                "fieldname": "closed",
+                "fieldtype": "Int",
+                "width": 100,
+            },
+            {
+                "label": _("Resolved + Closed"),
+                "fieldname": "resolved_closed",
+                "fieldtype": "Int",
+                "width": 180,
+            },
+            {
+                "label": _("Total"),
+                "fieldname": "total",
+                "fieldtype": "Int",
+                "width": 100,
+            },
         ]
 
     def get_data(self):
         issue_filters = self.build_issue_filters()
-        self.filtered_issues = frappe.get_all("Issue", filters=issue_filters, fields=["name", "owner", "_assign"])
+        self.filtered_issues = frappe.get_all(
+            "Issue", filters=issue_filters, fields=["name", "owner", "_assign"]
+        )
         user_stats = self.initialize_user_stats(self.filtered_issues)
         self.aggregate_status_changes(user_stats)
         self.finalize_data(user_stats)
@@ -78,14 +130,34 @@ class HospitalityIssueResolutionByUser:
                             stats[assigned_user] = self.init_user_row(assigned_user)
                         stats[assigned_user]["assigned"] += 1
                 except (json.JSONDecodeError, TypeError):
-                    pass  
+                    pass
         return stats
 
+    def get_versions_by_issue(self):
+        """Fetch Issue versions in batches instead of one query per Issue.
+
+        Keys are lower-cased because the old per-Issue `docname = name` match was
+        case-insensitive in MariaDB.
+        """
+        versions_by_issue = {}
+        issue_names = [issue.name for issue in self.filtered_issues]
+        for start in range(0, len(issue_names), VERSION_BATCH_SIZE):
+            batch = issue_names[start : start + VERSION_BATCH_SIZE]
+            for version in frappe.db.get_all(
+                "Version",
+                filters={"ref_doctype": "Issue", "docname": ["in", batch]},
+                fields=["docname", "owner", "data"],
+            ):
+                versions_by_issue.setdefault(version.docname.lower(), []).append(
+                    version
+                )
+        return versions_by_issue
+
     def aggregate_status_changes(self, user_stats):
+        versions_by_issue = self.get_versions_by_issue()
+        # Replay in Issue order so users are added to user_stats in the same order as before.
         for issue in self.filtered_issues:
-            versions = frappe.db.get_all("Version",
-                filters={"ref_doctype": "Issue", "docname": issue.name},
-                fields=["owner", "data"])
+            versions = versions_by_issue.get(issue.name.lower(), [])
 
             for version in versions:
                 try:
@@ -110,18 +182,37 @@ class HospitalityIssueResolutionByUser:
                         elif new_status == "Closed":
                             user_stats[user]["closed"] += 1
 
+    def get_full_names(self, users):
+        """One query for all users' full names (keys lower-cased: the old per-user
+        get_value lookup was case-insensitive)."""
+        users = [user for user in users if user]
+        if not users:
+            return {}
+        return {
+            row.name.lower(): row.full_name
+            for row in frappe.db.get_all(
+                "User", filters={"name": ["in", users]}, fields=["name", "full_name"]
+            )
+        }
+
     def finalize_data(self, user_stats):
         self.data = []
+        full_names = self.get_full_names(user_stats)
         for user, stats in user_stats.items():
-            full_name = frappe.db.get_value("User", user, "full_name") or user
-            stats["user_link"] = f'<a href="/app/user/{user}" target="_blank">{full_name}</a>'
+            full_name = full_names.get((user or "").lower()) or user
+            stats["user_link"] = (
+                f'<a href="/app/user/{user}" target="_blank">{full_name}</a>'
+            )
             stats["resolved_closed"] = stats["resolved"] + stats["closed"]
             stats["total"] = (
-                stats["opened"] + stats["assigned"] + stats["replied"] +
-                stats["on_hold"] + stats["resolved"] + stats["closed"]
+                stats["opened"]
+                + stats["assigned"]
+                + stats["replied"]
+                + stats["on_hold"]
+                + stats["resolved"]
+                + stats["closed"]
             )
             self.data.append(stats)
-
 
     def init_user_row(self, user):
         return {
@@ -151,7 +242,7 @@ class HospitalityIssueResolutionByUser:
                         "replied": 0,
                         "on_hold": 0,
                         "resolved": 0,
-                        "closed": 0
+                        "closed": 0,
                     }
                 chart_data_map[user]["open_count"] += int(entry.get("opened") or 0)
                 chart_data_map[user]["replied"] += int(entry.get("replied") or 0)
@@ -236,5 +327,3 @@ class HospitalityIssueResolutionByUser:
                 "datatype": "Int",
             },
         ]
-        
-        

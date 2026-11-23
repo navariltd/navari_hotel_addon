@@ -16,20 +16,20 @@ fixtures = [
                 "name",
                 "in",
                 (
-					"Issue-location",
-					"Issue-department",
-					"Issue-hod",
-					"Issue-hod_user_id",
-					"Issue-asset",
-					"Issue-asset_name",
-					"Issue-issue_allocation",
-					"Sales Taxes and Charges-hidden",
+                    "Issue-location",
+                    "Issue-department",
+                    "Issue-hod",
+                    "Issue-hod_user_id",
+                    "Issue-asset",
+                    "Issue-asset_name",
+                    "Issue-issue_allocation",
+                    "Sales Taxes and Charges-hidden",
                     "Sales Order-hide_total_without_tax",
                     "Quotation-hide_total_without_tax",
                     "Sales Order-custom_column_break_jzwev",
                     "Sales Order-custom_lost_reasons",
-					"Sales Order-custom_competitor",
-					"Sales Order-custom_detailed_reason",
+                    "Sales Order-custom_competitor",
+                    "Sales Order-custom_detailed_reason",
                     "Sales Order-custom_section_break_u1btt",
                 ),
             ]
@@ -45,8 +45,8 @@ fixtures = [
 # app_include_css = "/assets/navari_hotel_addon/css/navari_hotel_addon.css"
 # app_include_js = "/assets/navari_hotel_addon/js/navari_hotel_addon.js"
 app_include_js = [
-	# "/assets/navari_hotel_addon/js/navari_hotel_addon.js",
-	"/assets/navari_hotel_addon/js/taxes_and_totals.js"
+    # "/assets/navari_hotel_addon/js/navari_hotel_addon.js",
+    "/assets/navari_hotel_addon/js/taxes_and_totals.js"
 ]
 
 # include js, css files in header of web template
@@ -80,7 +80,7 @@ doctype_js = {
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+# 	"Role": "home_page"
 # }
 
 # Generators
@@ -136,7 +136,7 @@ doctype_js = {
 # 		"on_update": "method",
 # 		"on_cancel": "method",
 # 		"on_trash": "method"
-#	}
+# 	}
 # }
 
 # Scheduled Tasks
@@ -187,24 +187,24 @@ doctype_js = {
 # User Data Protection
 # --------------------
 
-user_data_fields = [
-    {
-        "doctype": "{doctype_1}",
-        "filter_by": "{filter_by}",
-        "redact_fields": ["{field_1}", "{field_2}"],
-        "partial": 1,
-    },
-    {
-        "doctype": "{doctype_2}",
-        "filter_by": "{filter_by}",
-        "partial": 1,
-    },
-    {
-        "doctype": "{doctype_3}",
-        "strict": False,
-    },
-    {"doctype": "{doctype_4}"},
-]
+# user_data_fields = [
+#     {
+#         "doctype": "{doctype_1}",
+#         "filter_by": "{filter_by}",
+#         "redact_fields": ["{field_1}", "{field_2}"],
+#         "partial": 1,
+#     },
+#     {
+#         "doctype": "{doctype_2}",
+#         "filter_by": "{filter_by}",
+#         "partial": 1,
+#     },
+#     {
+#         "doctype": "{doctype_3}",
+#         "strict": False,
+#     },
+#     {"doctype": "{doctype_4}"},
+# ]
 
 # Authentication and authorization
 # --------------------------------
